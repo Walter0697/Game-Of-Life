@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<title>GAME OF LIE</title>
+		<script type = "text/javascript" src = "jquery-3.1.1.min.js"></script>
+		
+		<!--style here-->
+		<style>
+			body{
+				background-color : blue;
+			}
+			
+			.black{
+				background-color : black;
+			}
+			.white{
+				background-color : white;
+			}
+			
+			.box{
+				height : 30px;
+				width : 30px;
+				margin : 2px;
+				display : inline-block;
+			}
+		</style>
+	
+	</head>
+	
+	
+	<body>
+		<!--Body here-->
+		<!--script here-->
+		<script type="text/javascript">
+			$(document).ready(function(){
+				var NUMBER = 50;
+				//create the array
+				var GAME = new Array();
+				var PREV = new Array();
+				for (var i = 0; i < NUMBER; i++)
+				{
+					var ROW = new Array();
+					ROW.push($('<div>'));
+					for (var j = 0; j < NUMBER; j++)
+					{
+						var rand = Math.floor((Math.random() * 2));
+						$temp = $("<div class = 'white box'></div>");
+						if (rand == 1)
+						{
+							$temp = $("<div class = 'black box'></div>");	
+						}
+						ROW.push($temp);
+						
+					}
+					ROW.push($('</div>'));
+					
+					GAME.push(ROW);
+				}
+				//appending into body
+				for (var i = 0; i < NUMBER; i++)
+				{
+					for (var j = 0; j < NUMBER+2; j++)
+					{
+						$('body').append(GAME[i][j]);
+					}
+				}
+				//setting the id
+				var divs = document.getElementsByClassName("box");
+				for (var i = 0; i < divs.length; i++)
+				{
+					divs[i].id = 'item-' + i.toString();
+				}
+				
+				//setting up search function
+				var isWhite = function(block){
+					if(block.hasClass('white'))
+					{
+						return 1;
+					}
+					return 0;
+				}
+				
+				var changeColor = function(block){
+					if (isWhite(block) == 1)
+					{
+						block.removeClass('white');
+						block.addClass('black');
+					}
+					else
+					{
+						block.removeClass('black');
+						block.addClass('white');
+					}
+				}
+				
+				var turnOneNumber = function(x, y){
+					return x * NUMBER + y;
+				}
+				
+				var copyPrev = function(){
+					PREV = [];
+					for (var i = 0; i < NUMBER; i++)
+					{
+						var ROW = new Array();
+						for (var j = 0; j < NUMBER; j++)
+						{
+							$temp = $('#item-' + turnOneNumber(i, j));
+							ROW.push(isWhite($temp));
+						}
+						PREV.push(ROW);
+					}
+				}	
+
+				var done = function(){
+					copyPrev();
+					for (var i = 0; i < NUMBER; i++)
+					{
+						for (var j = 0; j < NUMBER; j++)
+						{
+							var count = 0;
+							
+							var row = (i-1+NUMBER)%NUMBER;
+							var col = (j-1+NUMBER)%NUMBER;
+							count += PREV[row][col];
+						
+							col = j;
+							count += PREV[row][col];
+						
+							col = (j+1)%NUMBER;
+							count += PREV[row][col];
+							
+							row = i;
+							count += PREV[row][col];
+							
+							col = (j-1+NUMBER)%NUMBER;
+							count += PREV[row][col];
+							
+							row = (i+1)%NUMBER;
+							count += PREV[row][col];
+							
+							col = j;
+							count += PREV[row][col];
+							
+							col = (j+1)%NUMBER;
+							count += PREV[row][col];
+						
+							if (PREV[i][j] == 1)
+							{
+								if (count < 2 || count > 3)
+								{
+									changeColor($('#item-' + turnOneNumber(i, j)));
+								}
+							}
+							else
+							{
+								if (count == 3)
+								{
+									changeColor($('#item-' + turnOneNumber(i, j)));
+								}
+							}	
+						}
+					}
+				}	
+				
+				$('div').click(function(){
+					changeColor($(this));
+				});
+				
+				$(document).keydown(function(){
+					done();
+				})
+			});
+		</script>
+	
+	</body>
+</html>
